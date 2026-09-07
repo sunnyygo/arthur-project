@@ -88,4 +88,7 @@ def test_index_serves_light_chat_ui(client):
     assert "src-card" in html
     # v1.3.5: ringkasan sumber literatur selalu tampil di kartu agent, lebih jelas
     assert "lit-box" in html and "Sumber literatur" in html and "src-num" in html
+    # v1.3.6: scenario terpollusi grounding dibersihkan saat render + klaim tanpa nama sumber
+    assert "bersihkanScenario" in html
+    assert "claim-src" not in html
     assert "claim-item" in html

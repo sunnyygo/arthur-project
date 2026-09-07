@@ -203,7 +203,6 @@
     padding: 8px 12px; border-left: 3px solid var(--accent); border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     background: var(--accent-soft); font-size: .88rem; line-height: 1.55;
   }
-  .claim-src { display: block; margin-top: 3px; font-size: .75rem; color: var(--muted); font-style: italic; }
   .out-prose { font-size: .9rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word; color: var(--text); }
   details .src-list, details .claim-list { margin: 6px 0; }
 
@@ -400,7 +399,7 @@ function renderHistory() {
   }
   el.innerHTML = runs.map((x, i) => `
     <div class="run-item anim-in-${Math.min(i, 4)} ${x.run_id === activeRunId ? 'active-run' : ''}" data-run="${esc(x.run_id)}">
-      <div class="run-q">${esc(x.scenario)}</div>
+      <div class="run-q">${esc(bersihkanScenario(x.scenario))}</div>
       <div class="run-info">
         <span>${fmtTime(x.started_at)}</span>
         <span class="pill ${x.n_alerts ? 'has-alert' : 'ok'}">${x.n_alerts ? x.n_alerts + ' perlu cek' : 'semua OK'}</span>
@@ -487,10 +486,10 @@ function startThread(scenario, runId = null) {
   tpl.innerHTML = `
     <div class="thread anim-in"${runId ? ` data-run-id="${esc(runId)}"` : ''}>
       <div class="thread-head">
-        <span class="thread-title">${esc(scenario)}</span>
+        <span class="thread-title">${esc(bersihkanScenario(scenario))}</span>
         <button class="btn-close" title="Tutup percakapan ini" onclick="tutupThread(this)">&#10005;</button>
       </div>
-      <div class="msg msg-user">${esc(scenario)}<div class="msg-time">${jamSekarang()}</div></div>
+      <div class="msg msg-user">${esc(bersihkanScenario(scenario))}<div class="msg-time">${jamSekarang()}</div></div>
     </div>`;
   const thread = tpl.content.firstElementChild;
   document.getElementById('chatInner').appendChild(thread);
@@ -547,10 +546,7 @@ function formatOutput(stage, text) {
     if (stage === 'ekstraksi') {
       const items = data.filter(it => it && (it.claim || it.Claim)).map(it => {
         const claim = it.claim || it.Claim || '';
-        const src = it.source_title || it.source || it.Source || '';
-        return `<div class="claim-item">${esc(claim)}
-          ${src ? `<span class="claim-src">&mdash; ${esc(src)}</span>` : ''}
-        </div>`;
+        return `<div class="claim-item">${esc(claim)}</div>`;
       }).join('');
       if (items) return `<div class="claim-list">${items}</div>`;
     }
@@ -566,6 +562,12 @@ function ambilSumber(t) {
   if (!step) return [];
   const data = parseJsonBlock(step.output);
   return Array.isArray(data) ? data.filter(it => it && (it.title || it.Title)) : [];
+}
+/* ===== bersihkan scenario terpollusi grounding (v1.3.6) ===== */
+function bersihkanScenario(s) {
+  const t = String(s || '');
+  const cut = t.search(/\n\s*HASIL PENCARIAN LITERATUR/);
+  return (cut >= 0 ? t.slice(0, cut) : t).trim();
 }
 function litHtml(t) {
   const sumber = ambilSumber(t);
@@ -691,7 +693,7 @@ function openRun(id) {
   if (existing) { openThreadEl = existing; fokusThread(); return; }
   activeRunId = id;
   renderHistory();
-  startThread(hit.scenario, id);
+  startThread(bersihkanScenario(hit.scenario), id);
   addAgentMsg(hit.trace);
 }
 
