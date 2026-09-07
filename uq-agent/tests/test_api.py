@@ -97,3 +97,7 @@ def test_index_serves_light_chat_ui(client):
     # v1.3.8: modal warna primer (teal), tombol riset setinggi textarea, penulis di bawah judul
     assert "btn-accent" in html and "align-self: stretch" in html
     assert "flex-direction: column" in html and "src-head" in html
+    # v1.3.9: tombol modal kembali merah, box modal solid putih (--card gak ada), composer kecil
+    assert 'class="btn-danger" id="modalYa"' in html
+    assert "background: var(--panel); border-radius: 14px" in html
+    assert "min-height: 42px" in html
