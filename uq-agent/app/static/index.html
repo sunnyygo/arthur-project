@@ -135,6 +135,10 @@
     cursor: pointer; transition: transform .1s ease, background .15s ease;
   }
   .modal-actions button:active { transform: scale(.97); }
+  .modal-actions .btn-accent {
+    background: var(--accent); border-color: var(--accent); color: #fff;
+  }
+  .modal-actions .btn-accent:hover { background: var(--accent-hover); }
   .modal-actions .btn-danger {
     background: var(--danger, #b91c1c); border-color: var(--danger, #b91c1c); color: #fff;
   }
@@ -169,7 +173,7 @@
   /* v1.3.4: keluaran user-friendly — kartu sumber & daftar klaim (JSON diparse) */
   .src-list { display: flex; flex-direction: column; gap: 6px; }
   .src-card {
-    display: flex; align-items: baseline; gap: 9px;
+    display: flex; flex-direction: column; gap: 2px;
     padding: 8px 2px; border: none; border-top: 1px solid var(--border); border-radius: 0;
     background: transparent;
   }
@@ -271,8 +275,8 @@
   .composer textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
   .composer button {
     background: var(--accent); color: #fff; border: none; border-radius: var(--radius);
-    padding: 0 24px; font-size: .95rem; font-weight: 600; cursor: pointer; align-self: flex-end;
-    height: 52px; font-family: inherit;
+    padding: 0 24px; font-size: .95rem; font-weight: 600; cursor: pointer; align-self: stretch;
+    height: auto; font-family: inherit;
     transition: background .18s ease, transform .12s ease;
   }
   .composer button:hover { background: var(--accent-hover); }
@@ -355,7 +359,7 @@
     <p id="modalPesan">Semua riwayat riset di browser ini akan dihapus permanen. Tindakan ini tidak bisa dibatalkan.</p>
     <div class="modal-actions">
       <button class="btn-batal" id="modalBatal">Batal</button>
-      <button class="btn-danger" id="modalYa">Ya, bersihkan</button>
+      <button class="btn-accent" id="modalYa">Ya, bersihkan</button>
     </div>
   </div>
 </div>
@@ -543,8 +547,8 @@ function formatOutput(stage, text) {
           : esc(title);
         const metas = [authors, year].filter(Boolean).map(esc).join(' · ');
         return `<div class="src-card">
-          <span class="src-title">${tHtml}</span>
-          ${metas ? `<span class="src-meta">${metas}</span>` : ''}
+          <div class="src-head"><span class="src-title">${tHtml}</span></div>
+          ${metas ? `<div class="src-meta">${metas}</div>` : ''}
         </div>`;
       }).join('');
       if (cards) return `<div class="src-list">${cards}</div>`;

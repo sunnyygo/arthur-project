@@ -94,3 +94,6 @@ def test_index_serves_light_chat_ui(client):
     # v1.3.7: parseJsonBlock nangkep JSON tanpa fence (raw array) — kasus query non-teknologi
     assert "JSON.parse(raw)" in html
     assert "claim-item" in html
+    # v1.3.8: modal warna primer (teal), tombol riset setinggi textarea, penulis di bawah judul
+    assert "btn-accent" in html and "align-self: stretch" in html
+    assert "flex-direction: column" in html and "src-head" in html
