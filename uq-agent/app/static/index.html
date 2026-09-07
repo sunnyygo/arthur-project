@@ -518,7 +518,14 @@ function removeLoadingMsg() { document.getElementById('loadingMsg')?.remove(); }
 function parseJsonBlock(text) {
   if (typeof text !== 'string') return null;
   const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (!m) return null;
+  if (!m) {
+    // v1.3.7: JSON tanpa fence (raw array/objek) — model kadang nulis polos tanpa ```json
+    const raw = text.trim();
+    if (/^[\[{]/.test(raw) && /[\]}]$/.test(raw)) {
+      try { return JSON.parse(raw); } catch { return null; }
+    }
+    return null;
+  }
   try { return JSON.parse(m[1].trim()); } catch { return null; }
 }
 function formatOutput(stage, text) {

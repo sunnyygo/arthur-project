@@ -91,4 +91,6 @@ def test_index_serves_light_chat_ui(client):
     # v1.3.6: scenario terpollusi grounding dibersihkan saat render + klaim tanpa nama sumber
     assert "bersihkanScenario" in html
     assert "claim-src" not in html
+    # v1.3.7: parseJsonBlock nangkep JSON tanpa fence (raw array) — kasus query non-teknologi
+    assert "JSON.parse(raw)" in html
     assert "claim-item" in html
