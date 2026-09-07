@@ -86,4 +86,6 @@ def test_index_serves_light_chat_ui(client):
     assert "formatOutput" in html
     assert "parseJsonBlock" in html
     assert "src-card" in html
+    # v1.3.5: ringkasan sumber literatur selalu tampil di kartu agent, lebih jelas
+    assert "lit-box" in html and "Sumber literatur" in html and "src-num" in html
     assert "claim-item" in html

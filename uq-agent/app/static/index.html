@@ -169,11 +169,31 @@
   /* v1.3.4: keluaran user-friendly — kartu sumber & daftar klaim (JSON diparse) */
   .src-list { display: flex; flex-direction: column; gap: 6px; }
   .src-card {
-    display: flex; flex-direction: column; gap: 2px;
-    padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
-    background: var(--panel); transition: border-color .15s, box-shadow .15s;
+    display: flex; align-items: baseline; gap: 9px;
+    padding: 8px 2px; border: none; border-top: 1px solid var(--border); border-radius: 0;
+    background: transparent;
   }
-  .src-card:hover { border-color: var(--accent); box-shadow: var(--shadow); }
+  .src-card:first-child { border-top: none; }
+  /* v1.3.5: ringkasan sumber literatur — selalu tampil di kartu agent */
+  .lit-box {
+    margin-top: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--panel); overflow: hidden;
+  }
+  .lit-head {
+    display: flex; align-items: center; gap: 8px; width: 100%;
+    padding: 10px 14px; background: none; border: none; cursor: pointer;
+    font: inherit; font-size: .85rem; font-weight: 600; color: var(--text); text-align: left;
+  }
+  .lit-head:hover { background: var(--accent-soft); }
+  .lit-chevron { margin-left: auto; transition: transform .18s ease; font-size: .7rem; color: var(--muted); }
+  .lit-box.open .lit-chevron { transform: rotate(180deg); }
+  .lit-body { display: none; flex-direction: column; padding: 0 14px 12px; }
+  .lit-box.open .lit-body { display: block; }
+  .src-num {
+    flex: none; width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--accent-soft); color: var(--accent); border-radius: 6px;
+    font-size: .72rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
   .src-title { font-weight: 600; font-size: .87rem; color: var(--text); }
   .src-title a { color: var(--accent); text-decoration: none; }
   .src-title a:hover { text-decoration: underline; }
@@ -540,6 +560,39 @@ function formatOutput(stage, text) {
     .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>')
     .replace(/^#{1,3}\s*(.+)$/gm, '<b>$1</b>')}</div>`;
 }
+/* ===== ringkasan sumber literatur (v1.3.5) ===== */
+function ambilSumber(t) {
+  const step = t.steps.find(s => s.stage === 'pencarian');
+  if (!step) return [];
+  const data = parseJsonBlock(step.output);
+  return Array.isArray(data) ? data.filter(it => it && (it.title || it.Title)) : [];
+}
+function litHtml(t) {
+  const sumber = ambilSumber(t);
+  if (!sumber.length) return '';
+  const items = sumber.map((it, i) => {
+    const title = it.title || it.Title || '';
+    const url = it.url || it.URL || it.link || '';
+    const authors = it.authors || it.Authors || it.author || '';
+    const year = it.year || it.Year || '';
+    const tHtml = url ? `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(title)}</a>` : esc(title);
+    const metas = [authors, year].filter(Boolean).map(esc).join(' · ');
+    return `<div class="src-card">
+      <span class="src-num">${i + 1}</span>
+      <span class="src-title">${tHtml}</span>
+      ${metas ? `<span class="src-meta">${metas}</span>` : ''}
+    </div>`;
+  }).join('');
+  return `<div class="lit-box">
+    <button class="lit-head" onclick="toggleLit(this)">
+      📚 Sumber literatur (${sumber.length}) <span class="lit-chevron">▼</span>
+    </button>
+    <div class="lit-body">${items}</div>
+  </div>`;
+}
+function toggleLit(btn) {
+  btn.closest('.lit-box').classList.toggle('open');
+}
 function addAgentMsg(t) {
   const nAlert = t.steps.filter(s => s.alert !== 'OK').length;
   const conclusion = t.steps[t.steps.length - 1]?.output || '';
@@ -552,6 +605,7 @@ function addAgentMsg(t) {
           <b style="color:${nAlert ? 'var(--warn)' : 'var(--ok)'}">${nAlert} langkah perlu perhatian</b></span>
       </div>
       <div class="conclusion anim-in">${formatOutput(lastStage, conclusion)}</div>
+      ${litHtml(t)}
       ${t.steps.map((s, i) => `
         <div class="step anim-in-${Math.min(i + 1, 4)}">
           <div class="step-head">
