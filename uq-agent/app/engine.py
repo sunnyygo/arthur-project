@@ -104,7 +104,9 @@ def resolve_backend() -> Any:
 # =================================================================
 VC_PROMPT = (
     "Setelah menghasilkan jawaban di atas, sebutkan tingkat keyakinanmu pada jawaban itu. "
-    "Jawab HANYA dengan angka 0-100 (persen keyakinan), tanpa penjelasan."
+    "Tulis dulu ALASAN singkat keyakinanmu (1-2 kalimat: misalnya dukungan sumber, konsistensi antar klaim, "
+    "atau ada bagian yang tidak terjawab). Baris TERAKHIR harus HANYA angka 0-100 "
+    "(persen keyakinan), tanpa penjelasan."
 )
 
 

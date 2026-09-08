@@ -39,6 +39,16 @@ def verbalized_confidence(text: str) -> float:
     m = re.search(r"0\.\d+|1\.0", text)
     if m:
         return min(float(m.group(0)), 1.0)
+    # elicitation terkalibrasi (Tian+2023, Xiong+2023): alasan di atas,
+    # angka polos di baris TERAKHIR — ambil baris terakhir yang tidak kosong
+    lines = [ln.strip() for ln in text.strip().splitlines() if ln.strip()]
+    if lines:
+        m = re.fullmatch(r"(\d+(?:[.,]\d+)?)", lines[-1])
+        if m:
+            val = float(m.group(1).replace(",", "."))
+            if val > 1.0:
+                val = val / 100.0
+            return min(val, 1.0)
     # jawaban polos berupa satu angka saja (prompt UQ meminta "HANYA angka 0-100")
     m = re.fullmatch(r"\s*(\d+(?:[.,]\d+)?)\s*", text)
     if m:

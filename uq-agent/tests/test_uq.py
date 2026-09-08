@@ -30,6 +30,25 @@ def test_vc_neutral_when_unparseable():
 def test_vc_parses_bare_number_answer():
     # prompt UQ minta "jawab HANYA angka 0-100" — model asli menjawab "95" tanpa simbol
     assert verbalized_confidence("95") == 0.95
+
+
+def test_verbalized_confidence_alasan_dan_angka():
+    """Format elicitation terkalibrasi (Tian+2023, Xiong+2023): alasan dulu, angka terakhir."""
+    # baris terakhir = angka polos setelah alasan
+    assert verbalized_confidence("Jawaban didukung dua sumber, tapi satu klaim tanpa kutipan.\n85") == 0.85
+    assert verbalized_confidence("Sebagian klaim tidak ditemukan di abstrak sumber.\n40") == 0.40
+    # angka 0-1 juga diterima sebagai baris terakhir
+    assert verbalized_confidence("Klaim konsisten dengan sumber.\n0.7") == pytest.approx(0.7)
+    # angka di tengah kalimat bukan skor -> netral
+    assert verbalized_confidence("Ada 3 sumber relevan. Saya ragu.") == 0.5
+
+
+def test_vc_prompt_minta_alasan_dan_angka():
+    """VC_PROMPT harus minta alasan + angka (elicitation terkalibrasi, bukan angka polos)."""
+    from app.engine import VC_PROMPT
+    low = VC_PROMPT.lower()
+    assert "alasan" in low
+    assert "0-100" in VC_PROMPT
     assert verbalized_confidence("  90 \n") == pytest.approx(0.90)
     assert verbalized_confidence("40") == pytest.approx(0.40)
 
